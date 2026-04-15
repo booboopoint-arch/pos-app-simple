@@ -1581,6 +1581,46 @@ window.onload=function(){
   renderButtons()
 }
 
+// ===================================================
+// テスト用状態アクセサ（UIには影響しない）
+// ===================================================
+window.__getState=function(){
+  return{items,total,money,callMode,removeMode,callInput,showingNumbers,
+    orderNumber,todayTotal,todayDetails,menuData,shopName,receiptWidth,
+    suppliers,shiireHistory,selectedSupplier,selectedPay,staffList,
+    adminPassword,selectedStaff,tcRecords,adminViewMonth,adminViewStaff,
+    shiireViewMonth,currentPage,editPage,editData,backupPath}
+}
+window.__setState=function(s){
+  if('items'in s){items=s.items;update()}
+  if('money'in s){money=s.money;updateMoney()}
+  if('showingNumbers'in s){showingNumbers=s.showingNumbers;updateDisplay()}
+  if('shopName'in s)shopName=s.shopName
+  if('receiptWidth'in s)receiptWidth=s.receiptWidth
+  if('tcRecords'in s)tcRecords=s.tcRecords
+  if('selectedStaff'in s)selectedStaff=s.selectedStaff
+  if('adminViewStaff'in s)adminViewStaff=s.adminViewStaff
+  if('adminViewMonth'in s)adminViewMonth=s.adminViewMonth
+  if('todayTotal'in s)todayTotal=s.todayTotal
+  if('todayDetails'in s)todayDetails=s.todayDetails
+  if('orderNumber'in s)orderNumber=s.orderNumber
+  if('staffList'in s)staffList=s.staffList
+  if('suppliers'in s)suppliers=s.suppliers
+  if('shiireHistory'in s)shiireHistory=s.shiireHistory
+  if('shiireViewMonth'in s)shiireViewMonth=s.shiireViewMonth
+  if('editData'in s)editData=s.editData
+  if('editPage'in s)editPage=s.editPage
+  if('backupPath'in s)backupPath=s.backupPath
+  if('callMode'in s)callMode=s.callMode
+  if('removeMode'in s)removeMode=s.removeMode
+  if('callInput'in s)callInput=s.callInput
+  if('selectedSupplier'in s)selectedSupplier=s.selectedSupplier
+  if('selectedPay'in s)selectedPay=s.selectedPay
+  if('menuData'in s){menuData=s.menuData;renderButtons()}
+  if('adminPassword'in s)adminPassword=s.adminPassword
+  if('currentPage'in s){currentPage=s.currentPage;renderButtons()}
+}
+
 </script>
 </body>
 </html>
