@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>八兵衛POS アイコン生成</title>
+<style>
+body { font-family: sans-serif; padding: 32px; background: #f0f4f8; }
+h2 { color: #0d1b2e; }
+button {
+  padding: 16px 40px; font-size: 18px; font-weight: bold;
+  background: #1e4a7a; color: white; border: none;
+  border-radius: 10px; cursor: pointer; margin-top: 16px;
+}
+button:hover { background: #2a5fa0; }
+#preview { display: flex; gap: 24px; margin-top: 24px; align-items: flex-end; }
+.prev-wrap { text-align: center; font-size: 13px; color: #555; }
+#status { margin-top: 16px; font-weight: bold; color: #388e3c; font-size: 16px; }
+</style>
+</head>
+<body>
+<h2>八兵衛POS アイコン生成</h2>
+<p>下のボタンをクリックすると3つのアイコンが自動でダウンロードされます。<br>
+ダウンロードされたファイルを <code>pos_menu.html</code> と同じフォルダに入れてください。</p>
+
+<button onclick="generateAll()">アイコンを生成してダウンロード</button>
+<div id="status"></div>
+<div id="preview"></div>
+
+<script>
+function drawIcon(canvas) {
+  const s = canvas.width
+  const ctx = canvas.getContext('2d')
+
+  // 背景グラデーション
+  const grad = ctx.createLinearGradient(0, 0, s, s)
+  grad.addColorStop(0, '#1e4a7a')
+  grad.addColorStop(1, '#0d1b2e')
+  ctx.fillStyle = grad
+  const r = s * 0.2
+  ctx.beginPath()
+  ctx.moveTo(r, 0); ctx.lineTo(s - r, 0)
+  ctx.quadraticCurveTo(s, 0, s, r)
+  ctx.lineTo(s, s - r)
+  ctx.quadraticCurveTo(s, s, s - r, s)
+  ctx.lineTo(r, s)
+  ctx.quadraticCurveTo(0, s, 0, s - r)
+  ctx.lineTo(0, r)
+  ctx.quadraticCurveTo(0, 0, r, 0)
+  ctx.closePath()
+  ctx.fill()
+
+  // 金色の「八」
+  ctx.fillStyle = '#ffd600'
+  ctx.font = `bold ${s * 0.62}px "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText('八', s / 2, s / 2 + s * 0.03)
+
+  // 下部に小さく「POS」
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'
+  ctx.font = `bold ${s * 0.11}px sans-serif`
+  ctx.fillText('POS', s / 2, s * 0.84)
+}
+
+function generateAll() {
+  const sizes = [180, 192, 512]
+  const preview = document.getElementById('preview')
+  const status = document.getElementById('status')
+  preview.innerHTML = ''
+  let count = 0
+
+  sizes.forEach(size => {
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = size
+    drawIcon(canvas)
+
+    // プレビュー表示
+    const pc = document.createElement('canvas')
+    const ps = size === 512 ? 100 : 80
+    pc.width = pc.height = ps
+    pc.style.border = '2px solid #ccc'
+    pc.style.borderRadius = '12px'
+    pc.getContext('2d').drawImage(canvas, 0, 0, ps, ps)
+    const wrap = document.createElement('div')
+    wrap.className = 'prev-wrap'
+    wrap.appendChild(pc)
+    wrap.appendChild(Object.assign(document.createElement('div'), { textContent: `icon-${size}.png` }))
+    preview.appendChild(wrap)
+
+    // ダウンロード
+    canvas.toBlob(blob => {
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `icon-${size}.png`
+      a.click()
+      count++
+      if (count === sizes.length) {
+        status.textContent = '✅ 3つのファイルをダウンロードしました。pos_menu.html と同じフォルダに入れてください。'
+      }
+    }, 'image/png')
+  })
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "八兵衛POS",
+  "short_name": "八兵衛POS",
+  "description": "八兵衛 POSシステム",
+  "start_url": "pos_menu.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0d1b2e",
+  "theme_color": "#0d1b2e",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

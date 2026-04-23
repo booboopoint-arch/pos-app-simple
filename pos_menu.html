@@ -2,6 +2,14 @@
 <html>
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="八兵衛POS">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<script src="epos.js" defer></script>
 <style>
 *{box-sizing:border-box}
 input[type=number]::-webkit-inner-spin-button,
@@ -264,123 +272,6 @@ width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:15p
 </div>
 </div>
 
-<!-- タイムカード -->
-<div id="timecardModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;padding:20px;overflow-y:auto;">
-<div style="background:#fff;border-radius:12px;padding:24px;max-width:560px;margin:40px auto;">
-  <h2 style="font-size:20px;font-weight:bold;margin-bottom:20px;">🕐 タイムカード</h2>
-  <div style="margin-bottom:20px;">
-    <div style="font-size:13px;font-weight:bold;color:#555;margin-bottom:8px;">名前を選んでください</div>
-    <div id="tcStaffBtns" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
-    <div id="tcStaffNone" style="font-size:13px;color:#999;display:none;">スタッフが登録されていません。設定から登録してください。</div>
-  </div>
-  <div id="tcStatus" style="background:#f5f5f5;border-radius:8px;padding:14px;margin-bottom:16px;font-size:15px;font-weight:bold;color:#555;text-align:center;">名前を選んでください</div>
-  <div style="display:flex;gap:10px;margin-bottom:16px;">
-    <button id="tcShukkinBtn" onclick="punchIn()" style="flex:1;padding:14px;font-size:18px;font-weight:bold;background:#4caf50;color:white;border:none;border-radius:10px;cursor:pointer;">出勤</button>
-    <button id="tcTaikinBtn" onclick="punchOut()" style="flex:1;padding:14px;font-size:18px;font-weight:bold;background:#f44336;color:white;border:none;border-radius:10px;cursor:pointer;">退勤</button>
-  </div>
-  <button onclick="openAdminPass()" style="width:100%;padding:10px;background:#6a1b9a;color:white;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;margin-bottom:10px;">🔐 管理者画面</button>
-  <button onclick="document.getElementById('timecardModal').style.display='none'" style="width:100%;padding:12px;background:#9e9e9e;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;">閉じる</button>
-</div>
-</div>
-
-<!-- 管理者パスワード -->
-<div id="adminPassModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;padding:20px;">
-<div style="background:#fff;border-radius:12px;padding:24px;max-width:360px;margin:100px auto;text-align:center;">
-  <h2 style="font-size:18px;font-weight:bold;margin-bottom:6px;">🔐 管理者画面</h2>
-  <div style="font-size:13px;color:#999;margin-bottom:20px;">パスワードを入力してください</div>
-  <input type="password" id="adminPassInput" placeholder="パスワード"
-    style="width:100%;padding:12px;font-size:18px;border:2px solid #ccc;border-radius:8px;outline:none;text-align:center;margin-bottom:16px;"
-    onclick="this.focus()" onkeydown="if(event.key==='Enter')checkAdminPass()">
-  <div id="adminPassError" style="color:#f44336;font-size:13px;margin-bottom:12px;display:none;">パスワードが違います</div>
-  <div style="display:flex;gap:10px;">
-    <button onclick="document.getElementById('adminPassModal').style.display='none'" style="flex:1;padding:12px;background:#9e9e9e;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;">キャンセル</button>
-    <button onclick="checkAdminPass()" style="flex:1;padding:12px;background:#6a1b9a;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;">入室</button>
-  </div>
-</div>
-</div>
-
-<!-- 管理者タイムカード -->
-<div id="adminTcModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;padding:20px;overflow-y:auto;">
-<div style="background:#fff;border-radius:12px;padding:24px;max-width:680px;margin:40px auto;">
-  <h2 style="font-size:20px;font-weight:bold;margin-bottom:16px;">👔 勤怠管理</h2>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;background:#f5f5f5;border-radius:8px;padding:10px 16px;">
-    <button onclick="changeAdminMonth(-1)" style="background:#6a1b9a;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:18px;font-weight:bold;cursor:pointer;">← 先月</button>
-    <span id="adminMonthLabel" style="font-size:18px;font-weight:bold;"></span>
-    <button onclick="changeAdminMonth(1)" style="background:#6a1b9a;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:18px;font-weight:bold;cursor:pointer;">来月 →</button>
-  </div>
-  <div id="adminStaffTabs" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
-  <div id="adminTcBody" style="overflow-y:auto;max-height:280px;margin-bottom:16px;"></div>
-  <div style="background:#f3e5f5;border-radius:8px;padding:16px;margin-bottom:16px;">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-      <span style="font-size:14px;font-weight:bold;color:#6a1b9a;">時給</span>
-      <input type="number" id="hourlyRate" placeholder="" style="width:140px;padding:8px;font-size:16px;font-weight:bold;border:2px solid #6a1b9a;border-radius:6px;outline:none;-moz-appearance:textfield;" oninput="this.style.MozAppearance='textfield'">
-      <span style="font-size:14px;color:#555;">円</span>
-      <button onclick="calcSalary()" style="padding:8px 16px;background:#6a1b9a;color:white;border:none;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">計算</button>
-    </div>
-    <div id="salaryResult" style="font-size:16px;font-weight:bold;color:#333;line-height:2;"></div>
-  </div>
-  <div style="display:flex;gap:10px;">
-    <button onclick="document.getElementById('adminTcModal').style.display='none'" style="flex:1;padding:12px;background:#9e9e9e;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;">閉じる</button>
-    <button onclick="printAdminTc()" style="flex:1;padding:12px;background:#4caf50;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;">🖨 印刷</button>
-  </div>
-</div>
-</div>
-
-<!-- 仕入入力 -->
-<div id="shiireModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;padding:20px;overflow-y:auto;">
-<div style="background:#fff;border-radius:12px;padding:24px;max-width:480px;margin:40px auto;">
-  <h2 style="font-size:20px;font-weight:bold;margin-bottom:20px;">🚚 仕入れ入力</h2>
-  <div style="margin-bottom:16px;">
-    <div style="font-size:13px;font-weight:bold;color:#555;margin-bottom:8px;">仕入れ先</div>
-    <div id="supplierBtns" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
-    <div id="supplierNone" style="font-size:13px;color:#999;display:none;">仕入れ先が登録されていません。設定から登録してください。</div>
-  </div>
-  <div style="margin-bottom:16px;">
-    <div style="font-size:13px;font-weight:bold;color:#555;margin-bottom:6px;">金額</div>
-    <input type="number" id="shiireAmount" placeholder="例：50000" style="width:100%;padding:12px;font-size:20px;font-weight:bold;border:2px solid #1565c0;border-radius:8px;outline:none;">
-  </div>
-  <div style="margin-bottom:16px;">
-    <div style="font-size:13px;font-weight:bold;color:#555;margin-bottom:8px;">支払方法</div>
-    <div style="display:flex;gap:10px;">
-      <button id="payNaoki" onclick="selectPay('現金')" style="flex:1;padding:12px;font-size:18px;font-weight:bold;border:2px solid #1565c0;border-radius:8px;background:#1565c0;color:#fff;cursor:pointer;">現金</button>
-      <button id="payKake" onclick="selectPay('掛け')" style="flex:1;padding:12px;font-size:18px;font-weight:bold;border:2px solid #1565c0;border-radius:8px;background:#fff;color:#1565c0;cursor:pointer;">掛け</button>
-    </div>
-  </div>
-  <div style="margin-bottom:20px;">
-    <div style="font-size:13px;font-weight:bold;color:#555;margin-bottom:6px;">日付（自動入力・変更可）</div>
-    <input type="date" id="shiireDate" style="width:100%;padding:10px;font-size:16px;font-weight:bold;border:2px solid #ccc;border-radius:8px;outline:none;">
-  </div>
-  <div style="margin-bottom:20px;">
-    <div style="font-size:13px;font-weight:bold;color:#555;margin-bottom:6px;">メモ（任意）</div>
-    <input type="text" id="shiireMemo" placeholder="例：野菜・肉類など" style="width:100%;padding:10px;font-size:15px;border:2px solid #ccc;border-radius:8px;outline:none;">
-  </div>
-  <div style="display:flex;gap:10px;">
-    <button onclick="closeShiire()" style="flex:1;padding:14px;background:#9e9e9e;color:white;border:none;border-radius:8px;font-size:18px;font-weight:bold;cursor:pointer;">キャンセル</button>
-    <button onclick="saveShiire()" style="flex:1;padding:14px;background:#1565c0;color:white;border:none;border-radius:8px;font-size:18px;font-weight:bold;cursor:pointer;">登録する</button>
-  </div>
-</div>
-</div>
-
-<!-- 仕入履歴 -->
-<div id="shiireListModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;padding:20px;overflow-y:auto;">
-<div style="background:#fff;border-radius:12px;padding:24px;max-width:600px;margin:40px auto;">
-  <h2 style="font-size:20px;font-weight:bold;margin-bottom:16px;">📋 仕入履歴</h2>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;background:#f5f5f5;border-radius:8px;padding:10px 16px;">
-    <button onclick="changeShiireMonth(-1)" style="background:#0b1e3a;color:#ffd600;border:none;border-radius:6px;padding:8px 16px;font-size:18px;font-weight:bold;cursor:pointer;">← 先月</button>
-    <span id="shiireMonthLabel" style="font-size:18px;font-weight:bold;"></span>
-    <button onclick="changeShiireMonth(1)" style="background:#0b1e3a;color:#ffd600;border:none;border-radius:6px;padding:8px 16px;font-size:18px;font-weight:bold;cursor:pointer;">来月 →</button>
-  </div>
-  <div id="shiireListBody" style="overflow-y:auto;max-height:360px;margin-bottom:16px;"></div>
-  <div style="background:#f5f5f5;border-radius:8px;padding:14px 18px;font-size:15px;font-weight:bold;margin-bottom:16px;">
-    仕入合計<span id="shiireTotalDisp" style="float:right;font-family:monospace;">¥0</span>
-  </div>
-  <div style="display:flex;gap:10px;">
-    <button onclick="document.getElementById('shiireListModal').style.display='none'" style="flex:1;padding:12px;background:#9e9e9e;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;">閉じる</button>
-    <button onclick="printShiireList()" style="flex:1;padding:12px;background:#4caf50;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;">🖨 印刷</button>
-  </div>
-</div>
-</div>
-
 <!-- 設定モーダル -->
 <div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;overflow-y:auto;padding:20px;">
 <div id="editBox" style="background:#fff;border-radius:12px;padding:24px;max-width:720px;margin:0 auto;">
@@ -401,6 +292,16 @@ width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:15p
       <button id="receipt80btn" onclick="setReceiptWidth(80)" style="flex:1;padding:12px;font-size:16px;font-weight:bold;border:2px solid #0b1e3a;border-radius:8px;cursor:pointer;">80mm（標準）</button>
     </div>
     <div style="font-size:11px;color:#999;margin-top:8px;" id="receiptWidthLabel">現在：80mm</div>
+  </div>
+
+  <!-- プリンターIP -->
+  <div style="background:#e3f2fd;border-radius:8px;padding:14px 16px;margin-bottom:18px;">
+    <label style="font-size:13px;font-weight:bold;color:#555;display:block;margin-bottom:6px;">🖨 プリンターIPアドレス（LAN自動印刷）</label>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="printerIPInput" placeholder="例: 192.168.1.100" style="flex:1;padding:10px 12px;font-size:16px;border:2px solid #0b1e3a;border-radius:8px;outline:none;font-family:monospace;">
+      <button onclick="testPrinter()" style="padding:10px 16px;background:#1565c0;color:white;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;">テスト</button>
+    </div>
+    <div style="font-size:11px;color:#666;margin-top:6px;">設定するとダイアログなしでレシートが直接印刷されます。空欄の場合はブラウザ印刷を使います。</div>
   </div>
 
   <!-- ページタブ -->
@@ -426,26 +327,6 @@ width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:15p
 
   <button id="addItemBtn" onclick="addEditItem()">＋ 商品を追加する</button>
 
-  <!-- スタッフ管理 -->
-  <div style="background:#f3e5f5;border-radius:8px;padding:16px;margin-bottom:16px;">
-    <div style="font-size:14px;font-weight:bold;margin-bottom:10px;">👤 スタッフ登録</div>
-    <div id="staffEditList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
-    <div style="display:flex;gap:8px;">
-      <input type="text" id="staffInput" placeholder="スタッフ名を入力" style="flex:1;padding:8px 12px;border:1px solid #ccc;border-radius:6px;font-size:15px;outline:none;">
-      <button onclick="addStaff()" style="padding:8px 16px;background:#6a1b9a;color:white;border:none;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">追加</button>
-    </div>
-  </div>
-
-  <!-- 仕入れ先管理 -->
-  <div style="background:#e3f2fd;border-radius:8px;padding:16px;margin-bottom:16px;">
-    <div style="font-size:14px;font-weight:bold;margin-bottom:10px;">🚚 仕入れ先登録</div>
-    <div id="supplierEditList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
-    <div style="display:flex;gap:8px;">
-      <input type="text" id="supplierInput" placeholder="仕入れ先名を入力" style="flex:1;padding:8px 12px;border:1px solid #ccc;border-radius:6px;font-size:15px;outline:none;">
-      <button onclick="addSupplier()" style="padding:8px 16px;background:#1565c0;color:white;border:none;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">追加</button>
-    </div>
-  </div>
-
   <!-- 管理者パスワード -->
   <div style="background:#fff3e0;border-radius:8px;padding:16px;margin-bottom:16px;">
     <div style="font-size:14px;font-weight:bold;margin-bottom:10px;">🔐 管理者パスワード設定</div>
@@ -453,7 +334,7 @@ width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:15p
       <input type="password" id="adminPassSetting" placeholder="パスワードを設定" style="flex:1;padding:8px 12px;border:1px solid #ccc;border-radius:6px;font-size:15px;outline:none;">
       <button onclick="saveAdminPass()" style="padding:8px 16px;background:#e65100;color:white;border:none;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">設定</button>
     </div>
-    <div style="font-size:11px;color:#999;margin-top:6px;">※ 勤怠管理・Z締めリセットに使います</div>
+    <div style="font-size:11px;color:#999;margin-top:6px;">※ Z締めリセットに使います</div>
   </div>
 
   <!-- バックアップ -->
@@ -468,11 +349,14 @@ width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:15p
     <div style="font-size:11px;color:#999;margin-top:6px;">月1回自動でファイル名に年月を付けて保存します</div>
   </div>
 
-  <!-- タイムカード・仕入れボタン -->
-  <div style="display:flex;gap:10px;margin-bottom:16px;">
-    <button onclick="closeEdit();openTimecard()" style="flex:1;padding:12px;background:#6a1b9a;color:white;border:none;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer;">🕐 タイムカード</button>
-    <button onclick="closeEdit();openShiire()" style="flex:1;padding:12px;background:#1565c0;color:white;border:none;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer;">🚚 仕入入力</button>
-    <button onclick="closeEdit();openShiireList()" style="flex:1;padding:12px;background:#0b1e3a;color:#ffd600;border:none;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer;">📋 仕入履歴</button>
+  <!-- ジャーナルCSVエクスポート -->
+  <div style="background:#e8eaf6;border-radius:8px;padding:16px;margin-bottom:16px;">
+    <div style="font-size:14px;font-weight:bold;margin-bottom:10px;">📋 ジャーナルCSVエクスポート</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <input type="month" id="journalExportMonth" style="flex:1;padding:8px 12px;border:1px solid #ccc;border-radius:6px;font-size:15px;outline:none;">
+      <button onclick="exportJournalCsv()" style="padding:10px 16px;background:#3949ab;color:white;border:none;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">⬇ CSV保存</button>
+    </div>
+    <div style="font-size:11px;color:#999;margin-top:6px;">会計ごとに記録されたジャーナルをCSVでダウンロードします</div>
   </div>
 
   <div class="editActions">
@@ -480,6 +364,19 @@ width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:15p
     <button class="saveBtn" onclick="saveEdit()">保存して戻る</button>
   </div>
 </div>
+</div>
+
+<!-- Z締め確認モーダル -->
+<div id="zModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:32px;max-width:360px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+    <div style="font-size:24px;font-weight:bold;margin-bottom:8px;">🔐 Z締め実行</div>
+    <div style="font-size:14px;color:#666;margin-bottom:20px;">管理者パスワードを入力してください</div>
+    <input type="password" id="zPassInput" placeholder="パスワード" style="width:100%;padding:14px;font-size:20px;border:2px solid #c0392b;border-radius:8px;outline:none;text-align:center;margin-bottom:20px;" onkeydown="if(event.key==='Enter')confirmZ()">
+    <div style="display:flex;gap:12px;">
+      <button onclick="closeZModal()" style="flex:1;padding:14px;background:#e0e0e0;color:#333;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;">キャンセル</button>
+      <button onclick="confirmZ()" style="flex:1;padding:14px;background:#c0392b;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;">実行</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -518,6 +415,69 @@ const COLOR_OPTIONS = [
 ]
 
 // ===================================================
+// IndexedDB ジャーナル
+// ===================================================
+const JournalDB = (() => {
+  const DB_NAME = 'pos_journal_db'
+  const STORE = 'journal'
+  let _db = null
+
+  function _open() {
+    return new Promise((resolve, reject) => {
+      if (_db) { resolve(_db); return }
+      const req = indexedDB.open(DB_NAME, 1)
+      req.onupgradeneeded = e => {
+        const d = e.target.result
+        if (!d.objectStoreNames.contains(STORE)) {
+          const store = d.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true })
+          store.createIndex('month', 'month', { unique: false })
+        }
+      }
+      req.onsuccess = e => { _db = e.target.result; resolve(_db) }
+      req.onerror = e => reject(e.target.error)
+    })
+  }
+
+  async function appendRows(month, rows) {
+    const d = await _open()
+    return new Promise((resolve, reject) => {
+      const tx = d.transaction(STORE, 'readwrite')
+      const store = tx.objectStore(STORE)
+      rows.forEach(r => store.add(Object.assign({}, r, { month })))
+      tx.oncomplete = resolve
+      tx.onerror = e => reject(e.target.error)
+    })
+  }
+
+  async function getMonth(month) {
+    const d = await _open()
+    return new Promise((resolve, reject) => {
+      const tx = d.transaction(STORE, 'readonly')
+      const store = tx.objectStore(STORE)
+      const idx = store.index('month')
+      const req = idx.getAll(month)
+      req.onsuccess = () => resolve(req.result)
+      req.onerror = e => reject(e.target.error)
+    })
+  }
+
+  async function exportCsv(month) {
+    const rows = await getMonth(month)
+    if (!rows.length) { alert('データがありません：' + month); return }
+    let csv = '﻿日時,注文番号,商品名,金額,会計合計\n'
+    rows.forEach(r => {
+      csv += csvField(r.datetime) + ',' + csvField(r.order) + ',' + csvField(r.name) + ',' + csvField(r.price) + ',' + csvField(r.total) + '\n'
+    })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
+    a.download = 'journal_' + month + '.csv'
+    a.click()
+  }
+
+  return { appendRows, getMonth, exportCsv }
+})()
+
+// ===================================================
 // STATE
 // ===================================================
 let items=[], total=0, money=""
@@ -537,15 +497,8 @@ let todayDetails=JSON.parse(localStorage.getItem("pos_details"))||[]
 let menuData=loadMenu()
 let shopName=localStorage.getItem("pos_shopname")||"店名未設定"
 let receiptWidth=parseInt(localStorage.getItem("pos_receipt_width"))||80
-let suppliers=JSON.parse(localStorage.getItem("pos_suppliers"))||[]
-let shiireHistory=JSON.parse(localStorage.getItem("pos_shiire"))||[]
-let selectedSupplier="", selectedPay="現金"
-let staffList=JSON.parse(localStorage.getItem("pos_staff"))||[]
 let adminPassword=localStorage.getItem("pos_admin_pass")||"1234"
-let selectedStaff=""
-let tcRecords=JSON.parse(localStorage.getItem("pos_tc"))||[]
-let adminViewMonth=today.slice(0,7), adminViewStaff=""
-let shiireViewMonth=today.slice(0,7)
+let printerIP=localStorage.getItem("pos_printer_ip")||""
 let currentPage=0, editPage=0, editData=[]
 
 // ===================================================
@@ -633,11 +586,19 @@ function shutdownPC(){
 // ===================================================
 // バックアップ機能
 // ===================================================
+const BACKUP_DOWNLOAD_MODE = '__download__'
 let backupPath = localStorage.getItem('pos_backup_path') || ''
 
 function updateBackupPathDisp(){
   const el = document.getElementById('backupPathDisp')
-  if(el) el.textContent = backupPath ? '保存先：' + backupPath : '保存先：未設定'
+  if(!el) return
+  if(!window.electronAPI){
+    el.textContent = '保存先：ダウンロードフォルダ'
+  } else {
+    el.textContent = backupPath && backupPath !== BACKUP_DOWNLOAD_MODE
+      ? '保存先：' + backupPath
+      : '保存先：未設定'
+  }
 }
 
 function selectBackupPath(){
@@ -646,12 +607,11 @@ function selectBackupPath(){
       if(p){ backupPath = p; localStorage.setItem('pos_backup_path', p); updateBackupPathDisp(); }
     })
   } else {
-    alert('この機能はElectronアプリ版でのみ使用できます')
+    alert('ブラウザ版ではダウンロードフォルダへ自動保存されます')
   }
 }
 
 function doBackup(){
-  if(!backupPath){ alert('先に保存先フォルダを選択してください'); return }
   const now = new Date()
   const ym = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0')
   const filename = 'POSBackup_' + ym + '.json'
@@ -661,12 +621,13 @@ function doBackup(){
     data[k]=localStorage.getItem(k)
   }
   const json = JSON.stringify(data, null, 2)
-  if(window.electronAPI && window.electronAPI.saveBackup){
+  if(window.electronAPI && window.electronAPI.saveBackup && backupPath && backupPath !== BACKUP_DOWNLOAD_MODE){
     window.electronAPI.saveBackup(backupPath, filename, json).then(function(ok){
       if(ok) alert('💾 バックアップを保存しました\n' + backupPath + '\\' + filename)
       else alert('保存に失敗しました')
     })
   } else {
+    if(window.electronAPI && !backupPath){ alert('先に保存先フォルダを選択してください'); return }
     const a = document.createElement('a')
     a.href = URL.createObjectURL(new Blob([json],{type:'application/json'}))
     a.download = filename; a.click()
@@ -702,10 +663,9 @@ function openEdit(){
   editData=JSON.parse(JSON.stringify(menuData))
   editPage=0
   document.getElementById("shopNameInput").value=shopName
+  document.getElementById("printerIPInput").value=printerIP
   document.querySelectorAll(".editPageTab").forEach((t,i)=>t.classList.toggle("active",i===0))
   renderEditTable()
-  renderStaffEdit()
-  renderSupplierEdit()
   updateReceiptWidthUI()
   document.getElementById("editModal").style.display="block"
   updateBackupPathDisp()
@@ -768,6 +728,9 @@ function addEditItem(){
 function saveEdit(){
   const n=document.getElementById("shopNameInput").value.trim()
   if(n){shopName=n;localStorage.setItem("pos_shopname",shopName)}
+  const ip=document.getElementById("printerIPInput").value.trim()
+  printerIP=ip
+  localStorage.setItem("pos_printer_ip",ip)
   menuData=JSON.parse(JSON.stringify(editData))
   saveMenu()
   closeEdit()
@@ -775,62 +738,6 @@ function saveEdit(){
   alert("保存しました！")
 }
 
-// ===================================================
-// 仕入れ先管理
-// ===================================================
-function renderSupplierEdit(){
-  const el=document.getElementById("supplierEditList")
-  if(!el)return
-  el.innerHTML=suppliers.length===0?'<span style="font-size:13px;color:#999;">まだ登録がありません</span>':
-    suppliers.map((s,i)=>`<div style="display:flex;align-items:center;gap:4px;background:#fff;border:1px solid #90caf9;border-radius:6px;padding:4px 10px;">
-      <span style="font-size:14px;font-weight:bold;">${s}</span>
-      <button onclick="deleteSupplier(${i})" style="background:none;border:none;color:#f44336;cursor:pointer;font-size:14px;">✕</button>
-    </div>`).join('')
-}
-function addSupplier(){
-  const v=document.getElementById("supplierInput").value.trim()
-  if(!v){alert("仕入れ先名を入力してください");return}
-  if(suppliers.includes(v)){alert("同じ名前が既に登録されています");return}
-  suppliers.push(v)
-  localStorage.setItem("pos_suppliers",JSON.stringify(suppliers))
-  document.getElementById("supplierInput").value=""
-  renderSupplierEdit()
-}
-function deleteSupplier(i){
-  if(!confirm(`「${suppliers[i]}」を削除しますか？`))return
-  suppliers.splice(i,1)
-  localStorage.setItem("pos_suppliers",JSON.stringify(suppliers))
-  renderSupplierEdit()
-}
-
-// ===================================================
-// スタッフ管理
-// ===================================================
-function renderStaffEdit(){
-  const el=document.getElementById("staffEditList")
-  if(!el)return
-  el.innerHTML=staffList.length===0?'<span style="font-size:13px;color:#999;">まだ登録がありません</span>':
-    staffList.map((s,i)=>`<div style="display:flex;align-items:center;gap:4px;background:#fff;border:1px solid #ce93d8;border-radius:6px;padding:4px 10px;">
-      <span style="font-size:14px;font-weight:bold;">${s}</span>
-      <button onclick="deleteStaff(${i})" style="background:none;border:none;color:#f44336;cursor:pointer;font-size:14px;">✕</button>
-    </div>`).join('')
-}
-function addStaff(){
-  const v=document.getElementById("staffInput").value.trim()
-  if(!v){alert("スタッフ名を入力してください");return}
-  if(staffList.length>=10){alert("スタッフは最大10人まで登録できます");return}
-  if(staffList.includes(v)){alert("同じ名前が既に登録されています");return}
-  staffList.push(v)
-  localStorage.setItem("pos_staff",JSON.stringify(staffList))
-  document.getElementById("staffInput").value=""
-  renderStaffEdit()
-}
-function deleteStaff(i){
-  if(!confirm(`「${staffList[i]}」を削除しますか？`))return
-  staffList.splice(i,1)
-  localStorage.setItem("pos_staff",JSON.stringify(staffList))
-  renderStaffEdit()
-}
 function saveAdminPass(){
   const v=document.getElementById("adminPassSetting").value.trim()
   if(!v){alert("パスワードを入力してください");return}
@@ -981,18 +888,133 @@ function checkout(){
   if(window.electronAPI && window.electronAPI.appendJournal){
     window.electronAPI.appendJournal(journalMonth, journalRows)
   } else {
-    let journalKey="pos_journal_"+journalMonth
-    let journal=JSON.parse(localStorage.getItem(journalKey))||[]
-    items.forEach(i=>{
-      journal.push({datetime:dateStr+" "+timeStr,order:currentOrder,name:i.name,price:i.price,total:total})
-    })
-    localStorage.setItem(journalKey,JSON.stringify(journal))
+    const journalEntries=items.map(i=>({datetime:dateStr+" "+timeStr,order:currentOrder,name:i.name,price:i.price,total:total}))
+    JournalDB.appendRows(journalMonth, journalEntries)
   }
   items=[];money=""
   update();updateMoney()
 }
 
+function eposConnect(ip,callback){
+  if(typeof epson==='undefined'){callback(null,'SDK_NOT_FOUND');return}
+  const useSsl=location.protocol==='https:'
+  const port=useSsl?8043:8008
+  const dev=new epson.ePOSDevice()
+  dev.connect(ip,port,(data)=>{
+    if(data!=='OK'&&data!=='SSL_CONNECT_OK'){callback(null,data);return}
+    dev.createDevice('local_printer',dev.DEVICE_TYPE_PRINTER,
+      {crypto:useSsl,buffer:false},
+      (printer,code)=>{
+        if(code!=='OK'){callback(null,code);return}
+        callback({dev,printer},null)
+      }
+    )
+  })
+}
+
+function eposDisconnect(handle){
+  try{handle.dev.deleteDevice(handle.printer,()=>handle.dev.disconnect())}catch(e){}
+}
+
+function buildEposReceipt(printer,orderNum,printItems,printTotal){
+  const cols=receiptWidth===58?32:42
+  function lr(l,r,w){const p=Math.max(1,w-l.length-r.length);return l+' '.repeat(p)+r}
+  const now=new Date()
+  const dateStr=now.getFullYear()+'/'+(now.getMonth()+1).toString().padStart(2,'0')+'/'+now.getDate().toString().padStart(2,'0')
+  const timeStr=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0')
+  const tax=Math.round(printTotal*8/108)
+  const divider='-'.repeat(cols)
+  const grouped=[]
+  printItems.forEach(i=>{
+    const found=grouped.find(g=>g.name===i.name&&g.unitPrice===i.price)
+    if(found){found.qty++;found.subtotal+=i.price}
+    else grouped.push({name:i.name,unitPrice:i.price,qty:1,subtotal:i.price})
+  })
+  printer.addTextLang('ja')
+  printer.addTextSmooth(true)
+  printer.addTextAlign(printer.ALIGN_CENTER)
+  printer.addTextDouble(true,true)
+  printer.addText(shopName+'\n')
+  printer.addTextDouble(false,false)
+  printer.addText(dateStr+' '+timeStr+'\n')
+  printer.addText(divider+'\n')
+  printer.addText('お受け取り番号\n')
+  printer.addTextSize(4,4)
+  printer.addText(String(orderNum)+'\n')
+  printer.addTextSize(1,1)
+  printer.addText(divider+'\n')
+  printer.addTextAlign(printer.ALIGN_LEFT)
+  printer.addText('【お客様控え】\n')
+  grouped.forEach(g=>{
+    const lbl=g.name+(g.qty>1?' x'+g.qty:'')
+    printer.addText(lr(lbl,'¥'+g.subtotal,cols)+'\n')
+  })
+  printer.addText(divider+'\n')
+  printer.addTextAlign(printer.ALIGN_RIGHT)
+  printer.addTextDouble(true,true)
+  printer.addText('合計 ¥'+printTotal+'\n')
+  printer.addTextDouble(false,false)
+  printer.addText('内消費税8%（軽減税率）¥'+tax+'\n')
+  printer.addTextAlign(printer.ALIGN_LEFT)
+  printer.addText(divider+'\n')
+  printer.addText('【店舗控え】 No.'+orderNum+' 合計 ¥'+printTotal+'\n')
+  printer.addText(divider+'\n')
+  printer.addFeedLine(3)
+  printer.addCut(printer.CUT_FEED)
+}
+
+function sendToEposPrinter(ip,orderNum,printItems,printTotal){
+  return new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>reject(new Error('プリンター接続タイムアウト\nIPアドレスと電源を確認してください')),10000)
+    eposConnect(ip,(handle,err)=>{
+      if(err){
+        clearTimeout(timer)
+        const msg=err==='SDK_NOT_FOUND'?'epos.jsが読み込まれていません':'プリンター接続失敗: '+err
+        reject(new Error(msg));return
+      }
+      handle.printer.onreceive=(res)=>{
+        clearTimeout(timer)
+        eposDisconnect(handle)
+        if(res.success)resolve()
+        else reject(new Error('印刷失敗 ('+res.code+')'))
+      }
+      handle.printer.onerror=()=>{clearTimeout(timer);reject(new Error('プリンターエラー'))}
+      buildEposReceipt(handle.printer,orderNum,printItems,printTotal)
+      handle.printer.send()
+    })
+  })
+}
+
+function testPrinter(){
+  const ip=(document.getElementById("printerIPInput")||{}).value||(printerIP||"")
+  if(!ip){alert("プリンターIPアドレスを入力してください");return}
+  if(typeof epson==='undefined'){alert("epos.jsが読み込まれていません\nファイルを確認してください");return}
+  const timer=setTimeout(()=>alert('タイムアウト: IPアドレスと電源を確認してください'),10000)
+  eposConnect(ip,(handle,err)=>{
+    clearTimeout(timer)
+    if(err){alert('接続失敗: '+err);return}
+    handle.printer.onreceive=(res)=>{
+      eposDisconnect(handle)
+      alert(res.success?'✅ プリンター接続OK！テスト印刷しました。':'印刷失敗: '+res.code)
+    }
+    handle.printer.onerror=()=>{eposDisconnect(handle);alert('印刷エラー: プリンターを確認してください')}
+    handle.printer.addText('テスト印刷 OK\n')
+    handle.printer.addFeedLine(3)
+    handle.printer.addCut(handle.printer.CUT_FEED)
+    handle.printer.send()
+  })
+}
+
 function printReceipt(orderNum,printItems,printTotal){
+  if(printerIP){
+    sendToEposPrinter(printerIP,orderNum,printItems,printTotal)
+      .catch(err=>alert('プリンターエラー:\n'+err.message))
+  }else{
+    printReceiptBrowser(orderNum,printItems,printTotal)
+  }
+}
+
+function printReceiptBrowser(orderNum,printItems,printTotal){
   let now=new Date()
   let dateStr=now.getFullYear()+"/"+(now.getMonth()+1).toString().padStart(2,"0")+"/"+now.getDate().toString().padStart(2,"0")
   let timeStr=now.getHours().toString().padStart(2,"0")+":"+now.getMinutes().toString().padStart(2,"0")+":"+now.getSeconds().toString().padStart(2,"0")
@@ -1120,8 +1142,17 @@ sortBy('amount');
 // ===================================================
 function zConfirm1(){
   if(localStorage.getItem("pos_zdate")===getToday()){alert("本日はすでにZ締めが完了しています");return}
-  if(!confirm("Z締めを実行しますか？"))return
-  if(!confirm("管理者権限がありますか？"))return
+  const m=document.getElementById("zModal")
+  if(m){document.getElementById("zPassInput").value="";m.style.display="flex";setTimeout(()=>document.getElementById("zPassInput").focus(),100)}
+}
+function closeZModal(){
+  const m=document.getElementById("zModal")
+  if(m)m.style.display="none"
+}
+function confirmZ(){
+  const pass=document.getElementById("zPassInput").value
+  if(pass!==adminPassword){alert("パスワードが違います");return}
+  closeZModal()
   executeZ()
 }
 
@@ -1132,31 +1163,11 @@ function executeZ(){
   localStorage.setItem("sales_history",JSON.stringify(history))
   let month=zdToday.slice(0,7)
   let monthData=history.filter(r=>r.date.startsWith(month))
-  const shiireTotal=shiireHistory.filter(r=>r.date.startsWith(month)).reduce((s,r)=>s+r.amount,0)
   let csv="日付,売上\n"
   monthData.forEach(r=>{csv+=csvField(r.date)+","+csvField(r.sales)+"\n"})
   let detailCsv="日時,注文番号,商品名,金額\n"
   todayDetails.forEach(r=>{detailCsv+=csvField(r.datetime)+","+csvField(r.order)+","+csvField(r.name)+","+csvField(r.price)+"\n"})
-  const tcToday=tcRecords.filter(r=>r.date===zdToday)
-  const tcDays={}
-  tcToday.forEach(r=>{
-    if(!tcDays[r.staff])tcDays[r.staff]={in:null,out:null}
-    if(r.type==="出勤")tcDays[r.staff].in=r.time
-    if(r.type==="退勤")tcDays[r.staff].out=r.time
-  })
-  let tcCsv="日付,スタッフ,出勤,退勤,勤務時間\n"
-  Object.entries(tcDays).forEach(([staff,rec])=>{
-    let hours=""
-    if(rec.in&&rec.out){
-      const [ih,im]=rec.in.split(':').map(Number)
-      const [oh,om]=rec.out.split(':').map(Number)
-      const min=(oh*60+om)-(ih*60+im)
-      if(min>0)hours=Math.floor(min/60)+"h"+String(min%60).padStart(2,"0")+"m"
-    }
-    tcCsv+=csvField(zdToday)+","+csvField(staff)+","+csvField(rec.in||"")+","+csvField(rec.out||"")+","+csvField(hours)+"\n"
-  })
   const salesTotal=monthData.reduce((s,r)=>s+r.sales,0)
-  const sashine=salesTotal-shiireTotal
   todayTotal=0;todayDetails=[]
   orderNumber=1
   localStorage.setItem("pos_total",0)
@@ -1164,20 +1175,22 @@ function executeZ(){
   localStorage.setItem("pos_zdate",zdToday)
   localStorage.setItem("orderNumber",1)
   const tax=Math.round(salesTotal*8/108)
-  const monthReport="=== "+month+" 月次レポート ===\n売上合計　　¥"+salesTotal.toLocaleString()+"\n内消費税8%　¥"+tax.toLocaleString()+"\n─────────────────\n差引　　　　¥"+sashine.toLocaleString()
+  const monthReport="=== "+month+" 月次レポート ===\n売上合計　　¥"+salesTotal.toLocaleString()+"\n内消費税8%（軽減税率）　¥"+tax.toLocaleString()
   if(window.electronAPI){
     window.electronAPI.saveCsv("sales_"+month+".csv",csv).then(savePath=>{
       window.electronAPI.appendCsv("sales_detail_"+month+".csv",detailCsv,today).then(()=>{
-        window.electronAPI.appendCsv("timecard_"+month+".csv",tcCsv,today).then(()=>{
-          alert("結算完成！\n\n"+monthReport+"\n\n保存先：\n"+savePath)
-        })
+        alert("結算完成！\n\n"+monthReport+"\n\n保存先：\n"+savePath)
       })
     })
   }else{
-    let a=document.createElement("a")
-    a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}))
-    a.download="sales_"+month+".csv";a.click()
-    alert("結算完成！\n\n"+monthReport)
+    function dlCsv(filename, content){
+      const a=document.createElement("a")
+      a.href=URL.createObjectURL(new Blob(['﻿'+content],{type:"text/csv"}))
+      a.download=filename; a.click()
+    }
+    dlCsv("sales_"+month+".csv", csv)
+    dlCsv("sales_detail_"+zdToday+".csv", detailCsv)
+    alert("結算完成！\n\n"+monthReport+"\n\n2つのCSVをダウンロードしました")
   }
 }
 
@@ -1201,380 +1214,6 @@ function checkZResetPass(){
 }
 
 // ===================================================
-// 仕入入力
-// ===================================================
-function openShiire(){
-  selectedSupplier="";selectedPay="現金"
-  document.getElementById("shiireDate").value=getToday()
-  document.getElementById("shiireAmount").value=""
-  document.getElementById("shiireMemo").value=""
-  selectPay("現金")
-  const btns=document.getElementById("supplierBtns")
-  const none=document.getElementById("supplierNone")
-  if(suppliers.length===0){btns.style.display="none";none.style.display="block"}
-  else{
-    btns.style.display="flex";none.style.display="none"
-    btns.innerHTML=suppliers.map(s=>`<button onclick="selectSupplier('${s}',this)" style="padding:10px 16px;font-size:16px;font-weight:bold;border:2px solid #1565c0;border-radius:8px;background:#fff;color:#1565c0;cursor:pointer;">${s}</button>`).join('')
-  }
-  document.getElementById("shiireModal").style.display="block"
-}
-function closeShiire(){document.getElementById("shiireModal").style.display="none"}
-function selectSupplier(name,btn){
-  selectedSupplier=name
-  document.querySelectorAll("#supplierBtns button").forEach(b=>{b.style.background="#fff";b.style.color="#1565c0"})
-  btn.style.background="#1565c0";btn.style.color="#fff"
-}
-function selectPay(type){
-  selectedPay=type
-  document.getElementById("payNaoki").style.background=type==="現金"?"#1565c0":"#fff"
-  document.getElementById("payNaoki").style.color=type==="現金"?"#fff":"#1565c0"
-  document.getElementById("payKake").style.background=type==="掛け"?"#1565c0":"#fff"
-  document.getElementById("payKake").style.color=type==="掛け"?"#fff":"#1565c0"
-}
-function saveShiire(){
-  if(!selectedSupplier){alert("仕入れ先を選択してください");return}
-  const amount=parseInt(document.getElementById("shiireAmount").value)
-  if(!amount||amount<=0){alert("金額を入力してください");return}
-  const date=document.getElementById("shiireDate").value
-  const memo=document.getElementById("shiireMemo").value.trim()
-  shiireHistory.push({date,supplier:selectedSupplier,amount,pay:selectedPay,memo})
-  localStorage.setItem("pos_shiire",JSON.stringify(shiireHistory))
-  closeShiire()
-  alert(`登録しました！\n${selectedSupplier}　¥${amount.toLocaleString()}　${selectedPay}`)
-}
-
-// ===================================================
-// 仕入履歴
-// ===================================================
-function openShiireList(){
-  shiireViewMonth=today.slice(0,7)
-  renderShiireList()
-  document.getElementById("shiireListModal").style.display="block"
-}
-function changeShiireMonth(dir){
-  const [y,m]=shiireViewMonth.split('-').map(Number)
-  const d=new Date(y,m-1+dir,1)
-  shiireViewMonth=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")
-  renderShiireList()
-}
-function renderShiireList(){
-  const month=shiireViewMonth
-  const [y,m]=month.split('-')
-  document.getElementById("shiireMonthLabel").textContent=y+"年"+parseInt(m)+"月"
-  const list=shiireHistory.filter(r=>r.date.startsWith(month))
-  const total=list.reduce((s,r)=>s+r.amount,0)
-  const body=document.getElementById("shiireListBody")
-  if(list.length===0){body.innerHTML='<div style="text-align:center;color:#999;padding:20px;">この月の仕入れ記録がありません</div>'}
-  else{
-    body.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:14px;">
-      <thead><tr style="background:#0b1e3a;color:#ffd600;">
-        <th style="padding:8px;text-align:left;">日付</th>
-        <th style="padding:8px;text-align:left;">仕入れ先</th>
-        <th style="padding:8px;text-align:right;">金額</th>
-        <th style="padding:8px;text-align:center;">支払</th>
-        <th style="padding:8px;text-align:left;">メモ</th>
-        <th style="padding:8px;text-align:center;">削除</th>
-      </tr></thead>
-      <tbody>${list.map(r=>`<tr style="border-bottom:1px solid #eee;">
-        <td style="padding:8px;">${r.date}</td>
-        <td style="padding:8px;font-weight:bold;">${r.supplier}</td>
-        <td style="padding:8px;text-align:right;font-family:monospace;font-weight:bold;">¥${r.amount.toLocaleString()}</td>
-        <td style="padding:8px;text-align:center;">${r.pay}</td>
-        <td style="padding:8px;color:#666;">${r.memo||''}</td>
-        <td style="padding:8px;text-align:center;"><button onclick="deleteShiire(${shiireHistory.indexOf(r)})" style="background:#f44336;color:white;border:none;border-radius:4px;padding:3px 8px;cursor:pointer;font-size:12px;">削除</button></td>
-      </tr>`).join('')}</tbody>
-    </table>`
-  }
-  document.getElementById("shiireTotalDisp").textContent="¥"+total.toLocaleString()
-}
-function deleteShiire(i){
-  if(!confirm("この仕入れ記録を削除しますか？"))return
-  shiireHistory.splice(i,1)
-  localStorage.setItem("pos_shiire",JSON.stringify(shiireHistory))
-  renderShiireList()
-}
-function printShiireList(){
-  const month=shiireViewMonth
-  const [y,m]=month.split('-')
-  const label=y+"年"+parseInt(m)+"月"
-  const list=shiireHistory.filter(r=>r.date.startsWith(month))
-  const total=list.reduce((s,r)=>s+r.amount,0)
-  const rows=list.map(r=>`<tr><td>${r.date}</td><td>${r.supplier}</td><td style="text-align:right">¥${r.amount.toLocaleString()}</td><td style="text-align:center">${r.pay}</td><td>${r.memo||''}</td></tr>`).join('')
-  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>仕入履歴</title>
-<style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'MS Gothic',sans-serif;padding:20px;}
-h2{font-size:18px;font-weight:900;margin-bottom:4px;}.sub{font-size:12px;color:#666;margin-bottom:16px;}
-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px;}
-th{background:#0b1e3a;color:#ffd600;padding:6px 8px;text-align:left;}
-td{padding:6px 8px;border-bottom:1px solid #ddd;}.total{font-size:15px;font-weight:900;text-align:right;}
-</style></head><body>
-<h2>${shopName}　仕入履歴</h2>
-<div class="sub">${label}</div>
-<table><thead><tr><th>日付</th><th>仕入れ先</th><th>金額</th><th>支払</th><th>メモ</th></tr></thead>
-<tbody>${rows}</tbody></table>
-<div class="total">仕入合計　¥${total.toLocaleString()}</div>
-<script>window.onload=function(){window.print();window.close();}<\/script>
-</body></html>`
-  const win=window.open("","_blank","width=600,height=700")
-  if(!win){alert("印刷ウィンドウを開けませんでした。ポップアップが許可されているか確認してください。");return}
-  win.document.write(html);win.document.close()
-}
-
-// ===================================================
-// タイムカード
-// ===================================================
-function openTimecard(){
-  selectedStaff=""
-  document.getElementById("tcStatus").textContent="名前を選んでください"
-  const btns=document.getElementById("tcStaffBtns")
-  const none=document.getElementById("tcStaffNone")
-  if(staffList.length===0){btns.style.display="none";none.style.display="block"}
-  else{
-    btns.style.display="flex";none.style.display="none"
-    btns.innerHTML=staffList.map(s=>{
-      const recs=tcRecords.filter(r=>r.staff===s&&r.date===getToday())
-      const lastIn=recs.filter(r=>r.type==='出勤').pop()
-      const lastOut=recs.filter(r=>r.type==='退勤').pop()
-      let bg='#fff', color='#6a1b9a', border='#6a1b9a'
-      if(lastIn && (!lastOut || lastIn.time > lastOut.time)){
-        bg='#4caf50'; color='#fff'; border='#4caf50'
-      } else if(lastOut){
-        bg='#e0e0e0'; color='#888'; border='#ccc'
-      }
-      return `<button onclick="selectStaff('${s}',this)" style="width:calc(20% - 7px);height:52px;padding:4px;font-size:13px;font-weight:bold;border:2px solid ${border};border-radius:8px;background:${bg};color:${color};cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:center;">${s}</button>`
-    }).join('')
-  }
-  updatePunchBtns(undefined,undefined)
-  document.getElementById("timecardModal").style.display="block"
-}
-
-function updatePunchBtns(lastIn,lastOut){
-  const inBtn=document.getElementById("tcShukkinBtn")
-  const outBtn=document.getElementById("tcTaikinBtn")
-  const setBtn=(btn,enabled)=>{btn.disabled=!enabled;btn.style.opacity=enabled?"1":"0.35";btn.style.cursor=enabled?"pointer":"not-allowed"}
-  if(lastIn===undefined){setBtn(inBtn,false);setBtn(outBtn,false);return}
-  if(!lastIn){setBtn(inBtn,true);setBtn(outBtn,false)}
-  else if(!lastOut||lastIn.time>lastOut.time){setBtn(inBtn,false);setBtn(outBtn,true)}
-  else{setBtn(inBtn,false);setBtn(outBtn,false)}
-}
-
-function selectStaff(name,btn){
-  selectedStaff=name
-  document.querySelectorAll("#tcStaffBtns button").forEach(b=>{b.style.background="#fff";b.style.color="#6a1b9a"})
-  btn.style.background="#6a1b9a";btn.style.color="#fff"
-  const todayRec=tcRecords.filter(r=>r.staff===name&&r.date===getToday())
-  const lastIn=todayRec.filter(r=>r.type==="出勤").pop()||null
-  const lastOut=todayRec.filter(r=>r.type==="退勤").pop()||null
-  let statusText=""
-  if(!lastIn)statusText=name+" さん：まだ出勤していません"
-  else if(!lastOut||lastIn.time>lastOut.time)statusText=name+" さん：出勤中（"+lastIn.time+" 〜）"
-  else statusText=name+" さん：退勤済（"+lastIn.time+" 〜 "+lastOut.time+"）"
-  document.getElementById("tcStatus").textContent=statusText
-  updatePunchBtns(lastIn,lastOut)
-}
-
-function punchIn(){
-  if(!selectedStaff){alert("名前を選んでください");return}
-  const punchDate=getToday()
-  const now=new Date()
-  const timeStr=now.getHours().toString().padStart(2,"0")+":"+now.getMinutes().toString().padStart(2,"0")
-  if(!confirm(selectedStaff+" さん\n"+punchDate+"  "+timeStr+"\n\n出勤　でよいですか？"))return
-  tcRecords.push({staff:selectedStaff,date:punchDate,time:timeStr,type:"出勤"})
-  localStorage.setItem("pos_tc",JSON.stringify(tcRecords))
-  document.getElementById("timecardModal").style.display="none"
-}
-
-function punchOut(){
-  if(!selectedStaff){alert("名前を選んでください");return}
-  const punchDate=getToday()
-  const tr=tcRecords.filter(r=>r.staff===selectedStaff&&r.date===punchDate&&r.type==="出勤")
-  if(tr.length===0){alert("出勤打刻がありません");return}
-  const now=new Date()
-  const timeStr=now.getHours().toString().padStart(2,"0")+":"+now.getMinutes().toString().padStart(2,"0")
-  if(!confirm(selectedStaff+" さん\n"+punchDate+"  "+timeStr+"\n\n退勤　でよいですか？"))return
-  tcRecords.push({staff:selectedStaff,date:punchDate,time:timeStr,type:"退勤"})
-  localStorage.setItem("pos_tc",JSON.stringify(tcRecords))
-  document.getElementById("timecardModal").style.display="none"
-}
-
-// ===================================================
-// 管理者パスワード
-// ===================================================
-function openAdminPass(){
-  document.getElementById("adminPassInput").value=""
-  document.getElementById("adminPassError").style.display="none"
-  document.getElementById("adminPassModal").style.display="block"
-  setTimeout(()=>document.getElementById("adminPassInput").focus(),200)
-}
-function checkAdminPass(){
-  if(document.getElementById("adminPassInput").value===adminPassword){
-    document.getElementById("adminPassModal").style.display="none"
-    document.getElementById("timecardModal").style.display="none"
-    adminViewMonth=today.slice(0,7)
-    adminViewStaff=staffList[0]||""
-    renderAdminTc()
-    document.getElementById("adminTcModal").style.display="block"
-  }else{
-    document.getElementById("adminPassError").style.display="block"
-  }
-}
-
-// ===================================================
-// 管理者タイムカード
-// ===================================================
-function changeAdminMonth(dir){
-  const [y,m]=adminViewMonth.split('-').map(Number)
-  const d=new Date(y,m-1+dir,1)
-  adminViewMonth=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")
-  renderAdminTc()
-}
-function renderAdminTc(){
-  const [y,m]=adminViewMonth.split('-')
-  document.getElementById("adminMonthLabel").textContent=y+"年"+parseInt(m)+"月"
-  document.getElementById("salaryResult").innerHTML=""
-  const tabs=document.getElementById("adminStaffTabs")
-  tabs.innerHTML=staffList.map(s=>`<button onclick="selectAdminStaff('${s}',this)" style="padding:8px 16px;font-size:15px;font-weight:bold;border:2px solid #6a1b9a;border-radius:8px;background:${s===adminViewStaff?'#6a1b9a':'#fff'};color:${s===adminViewStaff?'#fff':'#6a1b9a'};cursor:pointer;">${s}</button>`).join('')
-  renderAdminTcBody()
-}
-function selectAdminStaff(name,btn){
-  adminViewStaff=name
-  document.querySelectorAll("#adminStaffTabs button").forEach(b=>{b.style.background="#fff";b.style.color="#6a1b9a"})
-  btn.style.background="#6a1b9a";btn.style.color="#fff"
-  document.getElementById("salaryResult").innerHTML=""
-  renderAdminTcBody()
-}
-function renderAdminTcBody(){
-  if(!adminViewStaff){document.getElementById("adminTcBody").innerHTML="<div style='color:#999;text-align:center;padding:20px;'>スタッフを選んでください</div>";return}
-  const month=adminViewMonth
-  const recs=tcRecords.filter(r=>r.staff===adminViewStaff&&r.date.startsWith(month))
-  const days={}
-  recs.forEach(r=>{if(!days[r.date])days[r.date]={in:null,out:null};if(r.type==="出勤")days[r.date].in=r.time;if(r.type==="退勤")days[r.date].out=r.time})
-  let totalMin=0
-  const rows=Object.entries(days).sort().map(([date,rec])=>{
-    let hours="—"
-    if(rec.in&&rec.out){
-      const [ih,im]=rec.in.split(':').map(Number)
-      const [oh,om]=rec.out.split(':').map(Number)
-      const min=(oh*60+om)-(ih*60+im)
-      if(min>0){totalMin+=min;hours=Math.floor(min/60)+"h"+String(min%60).padStart(2,"0")+"m"}
-    }
-    return `<tr style="border-bottom:1px solid #eee;">
-      <td style="padding:8px;">${date}</td>
-      <td style="padding:8px;text-align:center;">${rec.in||"—"}</td>
-      <td style="padding:8px;text-align:center;">${rec.out||"—"}</td>
-      <td style="padding:8px;text-align:center;font-family:monospace;font-weight:bold;">${hours}</td>
-      <td style="padding:8px;text-align:center;"><button onclick="editTcRecord('${date}')" style="background:#ff9800;color:white;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:bold;">修正</button></td>
-    </tr>`
-  }).join('')
-  const totalH=Math.floor(totalMin/60),totalM=totalMin%60
-  document.getElementById("adminTcBody").innerHTML=rows?`<table style="width:100%;border-collapse:collapse;font-size:14px;">
-    <thead><tr style="background:#6a1b9a;color:#fff;">
-      <th style="padding:8px;text-align:left;">日付</th>
-      <th style="padding:8px;text-align:center;">出勤</th>
-      <th style="padding:8px;text-align:center;">退勤</th>
-      <th style="padding:8px;text-align:center;">時間</th>
-      <th style="padding:8px;text-align:center;">修正</th>
-    </tr></thead>
-    <tbody>${rows}</tbody>
-    <tfoot><tr style="background:#f3e5f5;font-weight:900;">
-      <td colspan="4" style="padding:8px;text-align:right;">合計勤務時間</td>
-      <td style="padding:8px;text-align:center;font-family:monospace;">${totalH}h${String(totalM).padStart(2,"00")}m</td>
-    </tr></tfoot>
-  </table>`:'<div style="color:#999;text-align:center;padding:20px;">この月の打刻記録がありません</div>'
-}
-function editTcRecord(date){
-  const recs=tcRecords.filter(r=>r.staff===adminViewStaff&&r.date===date)
-  const lastIn=recs.filter(r=>r.type==="出勤").pop()
-  const lastOut=recs.filter(r=>r.type==="退勤").pop()
-  const existing=document.getElementById("tcEditForm")
-  if(existing)existing.remove()
-  const form=document.createElement("div")
-  form.id="tcEditForm"
-  form.style.cssText="background:#fff3e0;border:2px solid #ff9800;border-radius:8px;padding:16px;margin-top:12px;"
-  form.innerHTML=`
-    <div style="font-size:14px;font-weight:bold;margin-bottom:12px;">📝 ${date} の打刻修正（${adminViewStaff}）</div>
-    <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
-      <div><div style="font-size:12px;color:#555;margin-bottom:4px;">出勤時刻</div>
-        <input type="time" id="editInTime" value="${lastIn?lastIn.time:''}" style="padding:8px;font-size:16px;font-weight:bold;border:2px solid #ff9800;border-radius:6px;outline:none;"></div>
-      <div><div style="font-size:12px;color:#555;margin-bottom:4px;">退勤時刻（なければ空欄）</div>
-        <input type="time" id="editOutTime" value="${lastOut?lastOut.time:''}" style="padding:8px;font-size:16px;font-weight:bold;border:2px solid #ff9800;border-radius:6px;outline:none;"></div>
-    </div>
-    <div style="display:flex;gap:8px;">
-      <button onclick="saveTcEdit('${date}')" style="flex:1;padding:10px;background:#ff9800;color:white;border:none;border-radius:6px;font-size:15px;font-weight:bold;cursor:pointer;">保存</button>
-      <button onclick="document.getElementById('tcEditForm').remove()" style="flex:1;padding:10px;background:#9e9e9e;color:white;border:none;border-radius:6px;font-size:15px;font-weight:bold;cursor:pointer;">キャンセル</button>
-    </div>`
-  document.getElementById("adminTcBody").after(form)
-}
-function saveTcEdit(date){
-  const newIn=document.getElementById("editInTime").value.trim()
-  const newOut=document.getElementById("editOutTime").value.trim()
-  tcRecords=tcRecords.filter(r=>!(r.staff===adminViewStaff&&r.date===date))
-  if(newIn)tcRecords.push({staff:adminViewStaff,date,time:newIn,type:"出勤"})
-  if(newOut)tcRecords.push({staff:adminViewStaff,date,time:newOut,type:"退勤"})
-  localStorage.setItem("pos_tc",JSON.stringify(tcRecords))
-  const form=document.getElementById("tcEditForm")
-  if(form)form.remove()
-  document.getElementById("salaryResult").innerHTML=""
-  renderAdminTcBody()
-  alert("修正しました ✓")
-}
-function calcSalary(){
-  const rate=parseInt(document.getElementById("hourlyRate").value)
-  if(!rate||rate<=0){alert("時給を入力してください");return}
-  const month=adminViewMonth
-  const recs=tcRecords.filter(r=>r.staff===adminViewStaff&&r.date.startsWith(month))
-  const days={}
-  recs.forEach(r=>{if(!days[r.date])days[r.date]={in:null,out:null};if(r.type==="出勤")days[r.date].in=r.time;if(r.type==="退勤")days[r.date].out=r.time})
-  let totalMin=0
-  Object.values(days).forEach(rec=>{
-    if(rec.in&&rec.out){
-      const [ih,im]=rec.in.split(':').map(Number)
-      const [oh,om]=rec.out.split(':').map(Number)
-      const min=(oh*60+om)-(ih*60+im)
-      if(min>0)totalMin+=min
-    }
-  })
-  const totalH=totalMin/60
-  const salary=Math.round(totalH*rate)
-  const [y,m]=month.split('-')
-  document.getElementById("salaryResult").innerHTML=adminViewStaff+" さん　"+y+"年"+parseInt(m)+"月<br>勤務時間："+Math.floor(totalH)+"h"+String(totalMin%60).padStart(2,"0")+"m<br>時給：¥"+rate.toLocaleString()+"<br><span style='font-size:20px;color:#6a1b9a;'>給与：¥"+salary.toLocaleString()+"</span>"
-}
-function printAdminTc(){
-  const month=adminViewMonth
-  const [y,m]=month.split('-')
-  const recs=tcRecords.filter(r=>r.staff===adminViewStaff&&r.date.startsWith(month))
-  const days={}
-  recs.forEach(r=>{if(!days[r.date])days[r.date]={in:null,out:null};if(r.type==="出勤")days[r.date].in=r.time;if(r.type==="退勤")days[r.date].out=r.time})
-  let totalMin=0
-  const rows=Object.entries(days).sort().map(([date,rec])=>{
-    let hours="—"
-    if(rec.in&&rec.out){
-      const [ih,im]=rec.in.split(':').map(Number)
-      const [oh,om]=rec.out.split(':').map(Number)
-      const min=(oh*60+om)-(ih*60+im)
-      if(min>0){totalMin+=min;hours=Math.floor(min/60)+"h"+String(min%60).padStart(2,"0")+"m"}
-    }
-    return `<tr><td>${date}</td><td>${rec.in||"—"}</td><td>${rec.out||"—"}</td><td>${hours}</td></tr>`
-  }).join('')
-  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>勤怠</title>
-<style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'MS Gothic',sans-serif;padding:20px;}
-h2{font-size:18px;font-weight:900;margin-bottom:4px;}.sub{font-size:12px;color:#666;margin-bottom:16px;}
-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px;}
-th{background:#6a1b9a;color:#fff;padding:6px 8px;text-align:left;}
-td{padding:6px 8px;border-bottom:1px solid #ddd;}.total{font-size:15px;font-weight:900;text-align:right;}
-</style></head><body>
-<h2>${shopName}　勤怠記録</h2>
-<div class="sub">${adminViewStaff}　${y}年${parseInt(m)}月分</div>
-<table><thead><tr><th>日付</th><th>出勤</th><th>退勤</th><th>時間</th></tr></thead>
-<tbody>${rows}</tbody></table>
-<div class="total">合計勤務時間　${Math.floor(totalMin/60)}h${String(totalMin%60).padStart(2,"0")}m</div>
-<script>window.onload=function(){window.print();window.close();}<\/script>
-</body></html>`
-  const win=window.open("","_blank","width=500,height=700")
-  if(!win){alert("印刷ウィンドウを開けませんでした。ポップアップが許可されているか確認してください。");return}
-  win.document.write(html);win.document.close()
-}
-
-// ===================================================
 // 初期化
 // ===================================================
 window.onload=function(){
@@ -1587,9 +1226,7 @@ window.onload=function(){
 window.__getState=function(){
   return{items,total,money,callMode,removeMode,callInput,showingNumbers,
     orderNumber,todayTotal,todayDetails,menuData,shopName,receiptWidth,
-    suppliers,shiireHistory,selectedSupplier,selectedPay,staffList,
-    adminPassword,selectedStaff,tcRecords,adminViewMonth,adminViewStaff,
-    shiireViewMonth,currentPage,editPage,editData,backupPath}
+    adminPassword,printerIP,currentPage,editPage,editData,backupPath}
 }
 window.__setState=function(s){
   if('items'in s){items=s.items;update()}
@@ -1597,30 +1234,26 @@ window.__setState=function(s){
   if('showingNumbers'in s){showingNumbers=s.showingNumbers;updateDisplay()}
   if('shopName'in s)shopName=s.shopName
   if('receiptWidth'in s)receiptWidth=s.receiptWidth
-  if('tcRecords'in s)tcRecords=s.tcRecords
-  if('selectedStaff'in s)selectedStaff=s.selectedStaff
-  if('adminViewStaff'in s)adminViewStaff=s.adminViewStaff
-  if('adminViewMonth'in s)adminViewMonth=s.adminViewMonth
   if('todayTotal'in s)todayTotal=s.todayTotal
   if('todayDetails'in s)todayDetails=s.todayDetails
   if('orderNumber'in s)orderNumber=s.orderNumber
-  if('staffList'in s)staffList=s.staffList
-  if('suppliers'in s)suppliers=s.suppliers
-  if('shiireHistory'in s)shiireHistory=s.shiireHistory
-  if('shiireViewMonth'in s)shiireViewMonth=s.shiireViewMonth
   if('editData'in s)editData=s.editData
   if('editPage'in s)editPage=s.editPage
   if('backupPath'in s)backupPath=s.backupPath
   if('callMode'in s)callMode=s.callMode
   if('removeMode'in s)removeMode=s.removeMode
   if('callInput'in s)callInput=s.callInput
-  if('selectedSupplier'in s)selectedSupplier=s.selectedSupplier
-  if('selectedPay'in s)selectedPay=s.selectedPay
   if('menuData'in s){menuData=s.menuData;renderButtons()}
   if('adminPassword'in s)adminPassword=s.adminPassword
+  if('printerIP'in s)printerIP=s.printerIP
   if('currentPage'in s){currentPage=s.currentPage;renderButtons()}
 }
 
+</script>
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{})
+}
 </script>
 </body>
 </html>
