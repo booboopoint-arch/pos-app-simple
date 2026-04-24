@@ -1,5 +1,5 @@
 const CACHE = 'hachibeipOS-v2'
-const ASSETS = ['manifest.json', 'epos.js', 'icon-180.png', 'icon-192.png', 'icon-512.png']
+const ASSETS = ['pos_menu.html', 'manifest.json', 'epos.js', 'icon-180.png', 'icon-192.png', 'icon-512.png']
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -21,6 +21,9 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url)
+  // version.jsonは常にネットから取得（キャッシュしない）
+  if (url.pathname.endsWith('version.json')) return
+  // HTMLはネットワーク優先
   if (url.pathname.endsWith('.html') || url.pathname.endsWith('/')) {
     e.respondWith(
       fetch(e.request)

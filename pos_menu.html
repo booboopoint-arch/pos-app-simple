@@ -1176,6 +1176,18 @@ window.__setState=function(s){
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{})
 }
+fetch('version.json?t='+Date.now())
+  .then(r=>r.json())
+  .then(data=>{
+    const stored=localStorage.getItem('app_version')
+    if(stored && stored!==data.v){
+      localStorage.setItem('app_version',data.v)
+      location.reload(true)
+    } else {
+      localStorage.setItem('app_version',data.v)
+    }
+  })
+  .catch(()=>{})
 </script>
 </body>
 </html>
