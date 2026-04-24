@@ -27,11 +27,11 @@ background:#0d1b2e;
 color:#e0e8f0;
 }
 
-body.callMode{background:#ffdddd;}
 body.removeMode{background:#ffd6d6;}
 
 #left{display:grid;grid-template-rows:1fr auto;gap:10px;padding:10px;background:#0d1b2e;}
-#leftTop{display:grid;grid-template-columns:65% 35%;gap:10px;height:100%;}
+#leftTop{display:grid;grid-template-rows:auto 1fr;gap:8px;height:100%;}
+#topBar{display:flex;justify-content:flex-end;gap:8px;}
 
 #buttons{
 display:grid;
@@ -51,20 +51,9 @@ border-radius:16px;
 cursor:pointer;
 }
 
-#callPanel{background:#0a1520;border-radius:12px;padding:12px;border:1px solid #1a3a5c;}
-#callTitle{font-size:14px;font-weight:bold;margin-bottom:6px;}
-
 #menuEditBtn{
 background:#607d8b;color:white;border:none;
-border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;
-}
-
-#displaying{
-font-size:22px;
-color:#e53935;
-font-weight:bold;
-line-height:1.6;
-letter-spacing:6px;
+border-radius:6px;padding:6px 14px;font-size:14px;cursor:pointer;
 }
 
 #bottom{
@@ -85,15 +74,12 @@ gap:6px;
 #actions{
 display:grid;
 grid-template-columns:1fr 1fr 1fr;
-grid-template-rows:50px 50px 100px;
+grid-template-rows:1fr 100px 36px;
 gap:6px;
 }
 
 .delete{background:#2a3a4a;color:#a0b4c8;font-size:22px;border:none;border-radius:10px;cursor:pointer;}
 .check{background:#7a4500;color:#ffb060;font-size:22px;border:none;border-radius:10px;cursor:pointer;}
-.ready{background:#7a4500;color:#ffb060;font-size:22px;border:none;border-radius:10px;cursor:pointer;}
-.remove{background:#2a3a4a;color:#a0b4c8;font-size:22px;border:none;border-radius:10px;cursor:pointer;}
-.clearAll{background:#5a0a0a;color:#ff8080;font-size:16px;border:none;border-radius:10px;cursor:pointer;}
 
 .checkout{
 grid-column:1/4;
@@ -140,9 +126,6 @@ font-weight:bold;flex-wrap:nowrap;overflow:hidden;
 
 #change{color:#1976d2;}
 
-#callInputDisplay{
-font-size:28px;font-weight:bold;color:#ff0000;margin-top:6px;
-}
 
 /* ページタブ */
 #pageTabs{display:flex;gap:6px;margin-bottom:6px;}
@@ -207,6 +190,11 @@ width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:15p
 <div id="left">
 <div id="leftTop">
 
+<div id="topBar">
+  <button id="menuEditBtn" onclick="openEdit()">⚙ 設定</button>
+  <button onclick="shutdownPC()" style="background:#c0392b;color:white;border:none;border-radius:6px;padding:6px 14px;font-size:14px;font-weight:bold;cursor:pointer;">⏻ 終了</button>
+</div>
+
 <div style="display:grid;grid-template-rows:auto 1fr;gap:6px;height:100%;">
   <div id="pageTabs">
     <button class="pageTab active" onclick="switchPage(0,this)">ページ1</button>
@@ -214,18 +202,6 @@ width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:15p
     <button class="pageTab" onclick="switchPage(2,this)">ページ3</button>
   </div>
   <div id="buttons"></div>
-</div>
-
-<div id="callPanel">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-    <div id="callTitle">呼出番号</div>
-    <div style="display:flex;gap:6px;">
-      <button id="menuEditBtn" onclick="openEdit()">⚙ 設定</button>
-      <button onclick="shutdownPC()" style="background:#c0392b;color:white;border:none;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:bold;cursor:pointer;">⏻ 終了</button>
-    </div>
-  </div>
-  <div id="displaying">なし</div>
-  <div id="callInputDisplay"></div>
 </div>
 
 </div>
@@ -250,9 +226,6 @@ width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:15p
 <button class="delete" onclick="removeItem()">清除</button>
 <button class="check" onclick="xReport()">X点検</button>
 <button class="check" onclick="zConfirm1()">Z締め</button>
-<button class="ready" onclick="readyButton()">呼出</button>
-<button class="remove" onclick="removeButton()">番号削除</button>
-<button class="clearAll" onclick="removeAllReady()">全部削除</button>
 
 <button class="checkout" onclick="checkout()">会計</button>
 <button onclick="openZReset()" style="grid-column:1/4;height:36px;background:#1a2a3a;color:#4a6a8a;border:1px solid #2a3a4a;border-radius:6px;font-size:12px;cursor:pointer;margin-top:2px;">🔐 Z締めリセット（管理者）</button>
@@ -526,8 +499,7 @@ function getToday(){
 }
 let today = getToday()
 let todayTotal=parseInt(localStorage.getItem("pos_total"))||0
-let callMode=false, removeMode=false, callInput=""
-let showingNumbers=[]
+let removeMode=false
 let orderNumber=parseInt(localStorage.getItem("orderNumber"))||1
 let todayDetails=JSON.parse(localStorage.getItem("pos_details"))||[]
 let menuData=loadMenu()
@@ -794,70 +766,15 @@ function getAndIncrementOrderNumber(){
   return n
 }
 
-function readyButton(){
-  if(removeMode)return
-  if(!callMode){
-    callMode=true;callInput=""
-    document.body.classList.add("callMode")
-    document.getElementById("callInputDisplay").innerText="呼出番号を入力してください"
-  }else{
-    if(callInput==="")return
-    let n=parseInt(callInput)
-    if(showingNumbers.includes(n)){
-      alert("同じ番号は登録できません")
-      callMode=false;callInput=""
-      document.body.classList.remove("callMode")
-      document.getElementById("callInputDisplay").innerText=""
-      return
-    }
-    if(showingNumbers.length>=24){alert("表示できる番号は最大24個です");return}
-    showingNumbers.push(n)
-    updateDisplay()
-    callMode=false;callInput=""
-    document.body.classList.remove("callMode")
-    document.getElementById("callInputDisplay").innerText=""
-  }
-}
-
-function removeButton(){
-  if(callMode)return
-  if(!removeMode){
-    removeMode=true;callInput=""
-    document.body.classList.add("removeMode")
-    document.getElementById("callInputDisplay").innerText="削除する番号を入力してください"
-  }else{
-    if(callInput==="")return
-    let n=parseInt(callInput)
-    showingNumbers=showingNumbers.filter(x=>x!==n)
-    updateDisplay()
-    removeMode=false;callInput=""
-    document.body.classList.remove("removeMode")
-    document.getElementById("callInputDisplay").innerText=""
-  }
-}
-
-function removeAllReady(){showingNumbers=[];updateDisplay()}
-
 function num(n){
-  if(callMode||removeMode){
-    callInput+=n
-    document.getElementById("callInputDisplay").innerText="番号："+callInput
-    return
-  }
   money+=n
   updateMoney()
 }
 function num00(){num("00")}
 
 function clearMoney(){
-  if(callMode){callMode=false;callInput="";document.body.classList.remove("callMode");document.getElementById("callInputDisplay").innerText="";return}
-  if(removeMode){removeMode=false;callInput="";document.body.classList.remove("removeMode");document.getElementById("callInputDisplay").innerText="";return}
   money=""
   updateMoney()
-}
-
-function updateDisplay(){
-  document.getElementById("displaying").innerText=showingNumbers.length===0?"なし":showingNumbers.join(" ")
 }
 
 function addItem(name,price){
@@ -1232,14 +1149,13 @@ window.onload=function(){
 // テスト用状態アクセサ（UIには影響しない）
 // ===================================================
 window.__getState=function(){
-  return{items,total,money,callMode,removeMode,callInput,showingNumbers,
+  return{items,total,money,removeMode,
     orderNumber,todayTotal,todayDetails,menuData,shopName,receiptWidth,
     adminPassword,printerIP,currentPage,editPage,editData,backupPath}
 }
 window.__setState=function(s){
   if('items'in s){items=s.items;update()}
   if('money'in s){money=s.money;updateMoney()}
-  if('showingNumbers'in s){showingNumbers=s.showingNumbers;updateDisplay()}
   if('shopName'in s)shopName=s.shopName
   if('receiptWidth'in s)receiptWidth=s.receiptWidth
   if('todayTotal'in s)todayTotal=s.todayTotal
@@ -1248,9 +1164,7 @@ window.__setState=function(s){
   if('editData'in s)editData=s.editData
   if('editPage'in s)editPage=s.editPage
   if('backupPath'in s)backupPath=s.backupPath
-  if('callMode'in s)callMode=s.callMode
   if('removeMode'in s)removeMode=s.removeMode
-  if('callInput'in s)callInput=s.callInput
   if('menuData'in s){menuData=s.menuData;renderButtons()}
   if('adminPassword'in s)adminPassword=s.adminPassword
   if('printerIP'in s)printerIP=s.printerIP
