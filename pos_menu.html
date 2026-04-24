@@ -193,7 +193,6 @@ width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:15p
 
 <div id="topBar">
   <button id="menuEditBtn" onclick="openEdit()">⚙ 設定</button>
-  <button onclick="shutdownPC()" style="background:#c0392b;color:white;border:none;border-radius:6px;padding:6px 14px;font-size:14px;font-weight:bold;cursor:pointer;">⏻ 終了</button>
 </div>
 
 <div style="display:grid;grid-template-rows:auto 1fr;gap:6px;height:100%;">
@@ -579,17 +578,6 @@ function updateReceiptWidthUI(){
   lb.textContent="現在："+receiptWidth+"mm"
 }
 
-// ===================================================
-// システム終了
-// ===================================================
-function shutdownPC(){
-  if(!confirm('システムを終了しますか？'))return
-  if(window.electronAPI && window.electronAPI.shutdown){
-    window.electronAPI.shutdown()
-  } else {
-    window.close()
-  }
-}
 
 // ===================================================
 // バックアップ機能
