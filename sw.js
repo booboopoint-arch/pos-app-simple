@@ -1,4 +1,4 @@
-const CACHE = 'hachibeipOS-20260424'
+const CACHE = 'hachibeipOS-20260424b'
 const ASSETS = ['pos_menu.html', 'manifest.json', 'epos.js', 'icon-180.png', 'icon-192.png', 'icon-512.png']
 
 self.addEventListener('install', e => {
