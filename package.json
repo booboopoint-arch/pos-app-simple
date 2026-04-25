@@ -1,45 +1,7 @@
 {
-  "name": "pos-app-simple",
-  "version": "1.0.0",
-  "description": "八兵衛 POSシステム シンプル版",
-  "main": "main.js",
-  "scripts": {
-    "start": "electron .",
-    "build": "electron-builder --win --x64",
-    "test": "jest --runInBand",
-    "test:watch": "jest --watch --runInBand",
-    "test:coverage": "jest --coverage --runInBand"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/tests/**/*.test.js"
-    ],
-    "testTimeout": 10000
-  },
-  "build": {
-    "appId": "com.hachibeipOS.simple",
-    "productName": "八兵衛POS シンプル版",
-    "win": {
-      "target": "nsis",
-      "icon": "icon.ico"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "installerLanguages": [
-        "ja"
-      ],
-      "language": "1041"
-    },
-    "files": [
-      "**/*"
-    ]
-  },
-  "devDependencies": {
-    "electron": "^28.0.0",
-    "electron-builder": "^24.0.0",
-    "jest": "^29.7.0",
-    "jsdom": "^25.0.1"
+  "dependencies": {
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/cli": "^8.3.1",
+    "@capacitor/core": "^8.3.1"
   }
 }
